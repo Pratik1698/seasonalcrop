@@ -16,6 +16,7 @@ st.set_page_config(
 
 # Show loading progress
 with st.spinner("🚀 Loading Crop Cycle Planner..."):
+     st.write("✅ Page config loaded")
 
 # Simplified CSS
 st.markdown("""
