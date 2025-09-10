@@ -1,0 +1,48 @@
+=== AI-BASED CROP CYCLE PLANNER - DEMO DATA SUMMARY ===
+
+📊 COMPREHENSIVE DATASETS INCLUDED:
+
+1. SOIL DATA (1,600 records)
+   - 8 Indian states covered
+   - 6 soil types (Clay, Sandy, Loamy, Black Cotton, Red Soil, Alluvial)
+   - Parameters: pH, N-P-K nutrients, Organic Carbon, Moisture
+
+2. WEATHER DATA (3,456 records)
+   - 9 years of historical data (2015-2024)
+   - Monthly rainfall, temperature, humidity
+   - Seasonal patterns for accurate predictions
+
+3. CROP YIELD DATA (4,320 records)
+   - 14 different crops across 3 seasons
+   - Historical yield per hectare
+   - Production and area statistics
+
+4. MARKET PRICES (12,096 records)
+   - Price per quintal for all crops
+   - Local, regional, and export market data
+   - Seasonal price variations
+
+🧠 MACHINE LEARNING MODELS:
+
+✓ Crop Recommendation: Random Forest Classifier
+✓ Yield Prediction: Random Forest Regressor (R² = 0.972)
+✓ Profit Calculation: Multi-factor economic model
+
+🎯 KEY FEATURES:
+
+✓ 3-Season Planning (Kharif, Rabi, Zaid)
+✓ Interactive Dashboard with Charts
+✓ Real-time Recommendations
+✓ Profit & ROI Analysis
+✓ Professional UI Design
+✓ Mobile-Responsive Interface
+
+🚀 READY TO SHOWCASE:
+
+1. Run: streamlit run app.py
+2. Open: http://localhost:8501
+3. Input your farm parameters
+4. Get AI-powered recommendations!
+
+💰 TOTAL COST: Under ₹2,000
+🎓 PERFECT FOR FINAL-YEAR PROJECT!
