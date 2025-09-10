@@ -16,7 +16,6 @@ st.set_page_config(
 
 # Show loading progress
 with st.spinner("🚀 Loading Crop Cycle Planner..."):
-    st.write("✅ Page config loaded")
 
 # Simplified CSS
 st.markdown("""
@@ -48,7 +47,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.write("✅ CSS loaded")
 
 # Header
 st.markdown("""
@@ -58,7 +56,6 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-st.write("✅ Header loaded")
 
 # Create mock data if files don't exist
 @st.cache_data
@@ -105,7 +102,6 @@ def get_sample_data():
 # Load sample data
 try:
     crop_data, crop_prices, crop_seasons, crop_costs = get_sample_data()
-    st.write("✅ Sample data loaded")
 except Exception as e:
     st.error(f"❌ Error loading sample data: {e}")
     st.stop()
@@ -140,8 +136,6 @@ def calculate_profit(crop, yield_per_ha, area_hectares, crop_prices, crop_costs)
     profit = gross_revenue - total_costs
     return round(profit, 2)
 
-st.write("✅ Prediction functions loaded")
-
 # Sidebar inputs
 with st.sidebar:
     st.header("📋 Farm Information")
@@ -162,11 +156,10 @@ with st.sidebar:
     
     generate_plan = st.button("🚀 Generate Crop Plan")
 
-st.write("✅ Sidebar loaded")
 
 # Main content
 if generate_plan:
-    st.write("✅ Generate button clicked")
+
     
     with st.spinner("📊 Analyzing your farm conditions..."):
         try:
@@ -201,7 +194,7 @@ if generate_plan:
                     'cost_per_hectare': crop_costs.get(best_crop, 40000)
                 }
             
-            st.write("✅ Analysis complete")
+          
             
             # Display results
             st.success("🎉 Crop Cycle Plan Generated Successfully!")
@@ -343,8 +336,6 @@ else:
         for season, crops in crop_seasons.items():
             st.write(f"- **{season}:** {', '.join(crops)}")
 
-st.write("✅ App fully loaded")
-
 # Footer
 st.markdown("---")
 st.markdown("""
@@ -353,5 +344,3 @@ st.markdown("""
     <p><small>Supporting farmers with data-driven crop selection decisions</small></p>
 </div>
 """, unsafe_allow_html=True)
-
-st.write("✅ Footer loaded")
