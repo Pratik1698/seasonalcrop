@@ -1,7 +1,18 @@
-streamlit==1.35.0
+# Core App
+streamlit>=1.38.0
 pandas==2.2.2
 numpy==2.1.1
-scikit-learn==1.3.2
-plotly==5.15.0
-joblib==1.3.2
-openpyxl
+
+# Machine Learning (if you use ML models)
+scikit-learn==1.5.2
+
+# Data Visualization
+matplotlib==3.9.2
+seaborn==0.13.2
+plotly==5.24.0
+
+# Image Processing (if needed)
+Pillow==10.4.0
+
+# Utilities
+requests==2.32.3
