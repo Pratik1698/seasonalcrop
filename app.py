@@ -2,14 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import json
+import matplotlib.pyplot as plt
 from datetime import datetime
-
-# Optional: Import plotly only if installed
-try:
-    import plotly.express as px
-    PLOTLY_AVAILABLE = True
-except ImportError:
-    PLOTLY_AVAILABLE = False
 
 st.set_page_config(
     page_title="🌱 AI Crop Cycle Planner",
@@ -110,14 +104,17 @@ with st.sidebar:
     state = st.selectbox("📍 Select State", crop_data['states'])
     district = st.selectbox("📍 Select District", crop_data['districts'][state])
     area_hectares = st.number_input("🏞️ Farm Area (hectares)", 0.1, 1000.0, 2.0, step=0.1)
+
     st.header("🌱 Soil Parameters")
     soil_ph = st.slider("🌡️ Soil pH", 4.0, 10.0, 7.0, step=0.1)
     nitrogen = st.slider("🌿 Nitrogen (kg/ha)", 0, 500, 250)
     phosphorus = st.slider("💧 Phosphorus (kg/ha)", 0, 100, 50)
     potassium = st.slider("⚡ Potassium (kg/ha)", 0, 400, 200)
+
     st.header("🌤️ Weather Parameters")
     rainfall = st.slider("☔ Annual Rainfall (mm)", 200, 3000, 1000)
     temperature = st.slider("🌞 Average Temperature (°C)", 10, 45, 25)
+
     generate_plan = st.button("🚀 Generate Crop Plan")
 
 if generate_plan:
@@ -156,20 +153,25 @@ if generate_plan:
                 </div>
                 """, unsafe_allow_html=True)
 
-        if PLOTLY_AVAILABLE:
-            st.header("📊 Profit Comparison by Season")
-            chart_data = pd.DataFrame({
-                'Season': list(recommendations.keys()),
-                'Profit (₹)': [recommendations[s]['profit'] for s in recommendations],
-                'Crop': [recommendations[s]['crop'] for s in recommendations]
-            })
-            fig = px.bar(chart_data, x='Season', y='Profit (₹)', color='Profit (₹)', text='Crop',
-                         title="Expected Profit by Season", color_continuous_scale='Blues')
-            fig.update_traces(textposition='outside')
-            fig.update_layout(height=500)
-            st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.warning("📉 Plotly not installed. Please add `plotly` to requirements.txt to enable charts.")
+        # ✅ Matplotlib chart instead of Plotly
+        st.header("📊 Profit Comparison by Season")
+        chart_data = pd.DataFrame({
+            'Season': list(recommendations.keys()),
+            'Profit': [recommendations[s]['profit'] for s in recommendations],
+            'Crop': [recommendations[s]['crop'] for s in recommendations]
+        })
+        fig, ax = plt.subplots(figsize=(6, 4))
+        bars = ax.bar(chart_data['Season'], chart_data['Profit'])
+        ax.set_ylabel("Profit (₹)")
+        ax.set_title("Expected Profit by Season")
+
+        # Add crop labels on top of bars
+        for bar, crop in zip(bars, chart_data['Crop']):
+            ax.text(bar.get_x() + bar.get_width() / 2,
+                    bar.get_height(),
+                    crop,
+                    ha='center', va='bottom')
+        st.pyplot(fig)
 
         st.header("💡 Key Insights")
         total_annual_profit = sum(r['profit'] for r in recommendations.values())
@@ -200,13 +202,6 @@ if generate_plan:
 
 else:
     st.info("👈 Please fill in your farm details in the sidebar and click 'Generate Crop Plan' to get started!")
-    with st.expander("📊 About this Application"):
-        st.write("""
-        This AI-Based Crop Cycle Planner helps farmers make informed decisions
-        based on soil, weather, market prices, cultivation costs, and seasons.
-        """)
-        for season, crops in crop_seasons.items():
-            st.write(f"- **{season}:** {', '.join(crops)}")
 
 st.markdown("---")
 st.markdown("""
