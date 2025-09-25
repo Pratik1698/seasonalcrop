@@ -5,13 +5,15 @@ import json
 import matplotlib.pyplot as plt
 from datetime import datetime
 
+# Page configuration
 st.set_page_config(
-    page_title="🌱 AI Crop Cycle Planner",
+    page_title="🌱Crop Cycle Planner",
     page_icon="🌾",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
+# Custom CSS
 st.markdown("""
 <style>
     .main-header {
@@ -41,28 +43,19 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# Header
 st.markdown("""
 <div class="main-header">
-    <h1>🌾 AI-Based Crop Cycle Planner</h1>
+    <h1>🌾 Crop Cycle Planner</h1>
     <p>Smart Agricultural Decision Support System</p>
 </div>
 """, unsafe_allow_html=True)
 
+# Crop data
 @st.cache_data
 def get_sample_data():
     crop_data = {
         'crops': ['Rice', 'Wheat', 'Cotton', 'Maize', 'Soybean', 'Sugarcane', 'Barley', 'Mustard'],
-        'states': ['Maharashtra', 'Punjab', 'Haryana', 'Uttar Pradesh', 'Gujarat', 'Rajasthan', 'Karnataka', 'Andhra Pradesh'],
-        'districts': {
-            'Maharashtra': ['Mumbai', 'Pune', 'Nagpur', 'Nashik'],
-            'Punjab': ['Ludhiana', 'Amritsar', 'Jalandhar', 'Patiala'],
-            'Haryana': ['Gurgaon', 'Faridabad', 'Panipat', 'Ambala'],
-            'Uttar Pradesh': ['Lucknow', 'Kanpur', 'Agra', 'Varanasi'],
-            'Gujarat': ['Ahmedabad', 'Surat', 'Vadodara', 'Rajkot'],
-            'Rajasthan': ['Jaipur', 'Jodhpur', 'Udaipur', 'Kota'],
-            'Karnataka': ['Bangalore', 'Mysore', 'Mangalore', 'Hubli'],
-            'Andhra Pradesh': ['Hyderabad', 'Visakhapatnam', 'Vijayawada', 'Guntur']
-        }
     }
     crop_prices = {
         'Rice': 2500, 'Wheat': 2200, 'Cotton': 6000, 'Maize': 1800,
@@ -81,6 +74,7 @@ def get_sample_data():
 
 crop_data, crop_prices, crop_seasons, crop_costs = get_sample_data()
 
+# Yield prediction
 def predict_crop_yield(crop, soil_ph, nitrogen, rainfall, temperature):
     base_yields = {
         'Rice': 6.5, 'Wheat': 4.5, 'Cotton': 2.8, 'Maize': 7.2,
@@ -93,16 +87,32 @@ def predict_crop_yield(crop, soil_ph, nitrogen, rainfall, temperature):
     temp_factor = 1.0 if 20 <= temperature <= 30 else 0.85
     return round(base_yield * ph_factor * nitrogen_factor * rainfall_factor * temp_factor, 2)
 
+# Profit calculation
 def calculate_profit(crop, yield_per_ha, area_hectares, crop_prices, crop_costs):
     total_yield = yield_per_ha * area_hectares
     gross_revenue = total_yield * 10 * crop_prices.get(crop, 2000)
     total_costs = crop_costs.get(crop, 40000) * area_hectares
     return round(gross_revenue - total_costs, 2)
 
+# Sidebar inputs
 with st.sidebar:
     st.header("📋 Farm Information")
-    state = st.selectbox("📍 Select State", crop_data['states'])
-    district = st.selectbox("📍 Select District", crop_data['districts'][state])
+    
+    # State fixed to Maharashtra
+    state = "Maharashtra"
+    st.markdown(f"📍 State: {state}")
+    
+    # All Maharashtra districts
+    maharashtra_districts = [
+        'Ahmednagar', 'Akola', 'Amravati', 'Aurangabad', 'Beed', 'Bhandara',
+        'Buldhana', 'Chandrapur', 'Dhule', 'Gadchiroli', 'Gondia', 'Hingoli',
+        'Jalgaon', 'Jalna', 'Kolhapur', 'Latur', 'Mumbai City', 'Mumbai Suburban',
+        'Nagpur', 'Nanded', 'Nandurbar', 'Nashik', 'Osmanabad', 'Palghar',
+        'Parbhani', 'Pune', 'Raigad', 'Ratnagiri', 'Sangli', 'Satara',
+        'Sindhudurg', 'Solapur', 'Thane', 'Wardha', 'Washim', 'Yavatmal'
+    ]
+    district = st.selectbox("📍 Select District", maharashtra_districts)
+    
     area_hectares = st.number_input("🏞️ Farm Area (hectares)", 0.1, 1000.0, 2.0, step=0.1)
 
     st.header("🌱 Soil Parameters")
@@ -117,6 +127,7 @@ with st.sidebar:
 
     generate_plan = st.button("🚀 Generate Crop Plan")
 
+# Generate crop plan
 if generate_plan:
     with st.spinner("📊 Analyzing your farm conditions..."):
         recommendations = {}
@@ -153,7 +164,7 @@ if generate_plan:
                 </div>
                 """, unsafe_allow_html=True)
 
-        # ✅ Matplotlib chart instead of Plotly
+        # Profit chart
         st.header("📊 Profit Comparison by Season")
         chart_data = pd.DataFrame({
             'Season': list(recommendations.keys()),
@@ -165,7 +176,7 @@ if generate_plan:
         ax.set_ylabel("Profit (₹)")
         ax.set_title("Expected Profit by Season")
 
-        # Add crop labels on top of bars
+        # Crop labels
         for bar, crop in zip(bars, chart_data['Crop']):
             ax.text(bar.get_x() + bar.get_width() / 2,
                     bar.get_height(),
@@ -173,6 +184,7 @@ if generate_plan:
                     ha='center', va='bottom')
         st.pyplot(fig)
 
+        # Key insights
         st.header("💡 Key Insights")
         total_annual_profit = sum(r['profit'] for r in recommendations.values())
         best_season = max(recommendations, key=lambda x: recommendations[x]['profit'])
@@ -185,6 +197,7 @@ if generate_plan:
         col3.metric("Total Annual Yield", f"{total_yield:.1f} tonnes",
                     delta=f"Per hectare: {total_yield/area_hectares:.1f} tonnes")
 
+        # Download JSON report
         st.header("💾 Save Results")
         if st.button("📥 Download Report as JSON"):
             report_data = {
@@ -203,10 +216,11 @@ if generate_plan:
 else:
     st.info("👈 Please fill in your farm details in the sidebar and click 'Generate Crop Plan' to get started!")
 
+# Footer
 st.markdown("---")
 st.markdown("""
 <div style="text-align: center; color: #666; padding: 1rem;">
-    <p>🌾 AI-Based Crop Cycle Planner | Developed for Agricultural Sustainability</p>
+    <p>🌾  Crop Cycle Planner | Developed for Agricultural Sustainability</p>
     <p><small>Supporting farmers with data-driven crop selection decisions</small></p>
 </div>
 """, unsafe_allow_html=True)
