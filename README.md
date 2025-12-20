@@ -76,7 +76,7 @@ Profit comparison bar chart
 
 Downloadable JSON report
 
-🚀 Future Enhancements
+# 🚀 Future Enhancements
 
 Integration with real-time weather APIs
 
