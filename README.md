@@ -1,9 +1,9 @@
-🌾 #Seasonal Crop Cycle Planner
+# 🌾 Seasonal Crop Cycle Planner
 
 A smart agricultural decision-support web application that helps farmers plan crops across Kharif, Rabi, and Zaid seasons based on soil, weather, and economic factors.
 Built using Python and Streamlit, the system recommends the most profitable crop for each season.
 
-#📌 Features
+## 📌 Features
 
 🌱 Season-wise crop recommendations (Kharif, Rabi, Zaid)
 
@@ -17,7 +17,7 @@ Built using Python and Streamlit, the system recommends the most profitable crop
 
 💾 Downloadable crop plan report (JSON)
 
-🧠 How It Works
+## 🧠 How It Works
 
 User enters farm details such as area, soil parameters, and weather conditions.
 
@@ -29,7 +29,7 @@ The most profitable crop is selected for each season.
 
 Results are displayed with insights and charts.
 
-🛠️ Technologies Used
+## 🛠️ Technologies Used
 
 Python
 
@@ -45,14 +45,14 @@ JSON
 
 Datetime
 
-📂 Project Structure
-Seasonal-Crop-Cycle-Planner/
-│
-├── app.py               # Main Streamlit application
-├── README.md            # Project documentation
-├── requirements.txt     # Python dependencies
+## 📂 Project Structure
+- ### Seasonal-Crop-Cycle-Planner/
+- │
+- ├── app.py         -      # Main Streamlit application
+- ├── README.md       -     # Project documentation
+- ├── requirements.txt  -   # Python dependencies
 
-▶️ How to Run the Project
+## ▶️ How to Run the Project
 
 Clone the repository:
 
@@ -65,9 +65,7 @@ pip install -r requirements.txt
 
 
 Run the app:
-
-streamlit run app.py
-
+'''bash streamlit run app.py ''' 
 📸 Output Preview
 
 Season-wise recommended crops
