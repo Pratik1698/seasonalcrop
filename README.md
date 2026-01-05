@@ -47,10 +47,11 @@ Datetime
 
 ## 📂 Project Structure
 - ### Seasonal-Crop-Cycle-Planner/
-  -│
-  -├── app.py -      # Main Streamlit application
-  -├── README.md -     # Project documentation
-  -├── requirements.txt  -   # Python dependencies
+  - │
+  
+  - ├── app.py -     # Main Streamlit application
+  - ├── README.md -     # Project documentation
+  - ├── requirements.txt  -   # Python dependencies
 
 ## ▶️ How to Run the Project
 
@@ -60,9 +61,13 @@ git clone 'https://github.com/your-username/seasonal-crop-cycle-planner.git'
 
 
 Install dependencies:
+
 'pip install -r requirements.txt'
+
 Run the app:
+
 'streamlit run app.py'  
+
 📸 Output Preview
 
 Season-wise recommended crops
