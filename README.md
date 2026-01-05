@@ -60,13 +60,8 @@ git clone 'https://github.com/your-username/seasonal-crop-cycle-planner.git'
 
 
 Install dependencies:
-
-'''bash
 'pip install -r requirements.txt'
-
-
 Run the app:
-''' bash 
 'streamlit run app.py'  
 📸 Output Preview
 
