@@ -2,155 +2,163 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import json
-import plotly.express as px  # Upgraded visualization
 from datetime import datetime
 
 # --- CONFIG & STYLING ---
 st.set_page_config(page_title="CropSense AI", page_icon="🌱", layout="wide")
 
-def local_css():
+def apply_custom_css():
     st.markdown("""
     <style>
-        .main { background-color: #f8f9fa; }
-        .stMetric { background-color: #ffffff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        /* Fix for visibility: Force dark text on light backgrounds */
         .recommendation-card { 
-            border-radius: 15px; padding: 20px; margin: 10px 0;
-            border-top: 5px solid #2e7d32; background: white;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 15px; 
+            padding: 25px; 
+            margin: 15px 0;
+            border-left: 10px solid #2e7d32; 
+            background-color: #ffffff !important; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            color: #1a1a1a !important;
         }
-        .sidebar-header { color: #2e7d32; font-weight: bold; margin-top: 1rem; }
+        .recommendation-card h2, .recommendation-card h3, .recommendation-card p, .recommendation-card span {
+            color: #1a1a1a !important;
+            margin-bottom: 5px;
+        }
+        .season-badge {
+            background-color: #e8f5e9;
+            color: #2e7d32 !important;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .metric-label { font-size: 1rem; color: #666; }
+        .metric-value { font-size: 1.5rem; font-weight: bold; color: #2e7d32; }
     </style>
     """, unsafe_allow_html=True)
 
-local_css()
+apply_custom_css()
 
 # --- DATA & LOGIC ---
 @st.cache_data
-def get_extended_data():
-    # Adding N-P-K requirements for more scientific logic
+def get_agricultural_data():
+    # Crop price per quintal (100kg), Cost per hectare, Base yield in Tonnes/Hectare
     crop_info = {
-        'Rice': {'price': 2500, 'cost': 45000, 'base_yield': 6.5, 'npk': [120, 60, 60]},
-        'Wheat': {'price': 2200, 'cost': 40000, 'base_yield': 4.5, 'npk': [100, 50, 40]},
-        'Cotton': {'price': 6000, 'cost': 50000, 'base_yield': 2.8, 'npk': [100, 50, 50]},
-        'Maize': {'price': 1800, 'cost': 35000, 'base_yield': 7.2, 'npk': [120, 60, 40]},
-        'Soybean': {'price': 4200, 'cost': 30000, 'base_yield': 3.5, 'npk': [20, 60, 40]},
-        'Sugarcane': {'price': 350, 'cost': 80000, 'base_yield': 65.0, 'npk': [250, 115, 115]},
-        'Mustard': {'price': 5500, 'cost': 28000, 'base_yield': 2.2, 'npk': [80, 40, 40]}
+        'Rice': {'price': 2500, 'cost': 45000, 'base_yield': 6.5},
+        'Wheat': {'price': 2200, 'cost': 40000, 'base_yield': 4.5},
+        'Cotton': {'price': 6000, 'cost': 50000, 'base_yield': 2.8},
+        'Maize': {'price': 1800, 'cost': 35000, 'base_yield': 7.2},
+        'Soybean': {'price': 4200, 'cost': 30000, 'base_yield': 3.5},
+        'Sugarcane': {'price': 350, 'cost': 80000, 'base_yield': 65.0},
+        'Barley': {'price': 1900, 'cost': 32000, 'base_yield': 4.0},
+        'Mustard': {'price': 5500, 'cost': 28000, 'base_yield': 2.2}
     }
     seasons = {
         'Kharif (Monsoon)': ['Rice', 'Cotton', 'Maize', 'Soybean', 'Sugarcane'],
-        'Rabi (Winter)': ['Wheat', 'Maize', 'Mustard'],
+        'Rabi (Winter)': ['Wheat', 'Barley', 'Mustard', 'Maize'],
         'Zaid (Summer)': ['Rice', 'Maize']
     }
     return crop_info, seasons
 
-crop_info, crop_seasons = get_extended_data()
+crop_info, crop_seasons = get_agricultural_data()
 
-def predict_crop_yield(crop, ph, n, p, k, rain, temp):
-    data = crop_info[crop]
-    # Yield penalty logic based on NPK sufficiency
-    n_ratio = min(1.0, n / data['npk'][0])
-    p_ratio = min(1.0, p / data['npk'][1])
-    k_ratio = min(1.0, k / data['npk'][2])
-    nutrient_factor = (n_ratio + p_ratio + k_ratio) / 3
-    
-    ph_factor = 1.0 if 6.0 <= ph <= 7.5 else 0.75
-    temp_factor = 1.0 if 18 <= temp <= 32 else 0.8
-    
-    return round(data['base_yield'] * nutrient_factor * ph_factor * temp_factor, 2)
+def calculate_yield(crop, ph, rainfall, temp):
+    base = crop_info[crop]['base_yield']
+    # Simplified environmental impact logic
+    ph_impact = 1.0 if 6.0 <= ph <= 7.5 else 0.8
+    weather_impact = 1.0 if 20 <= temp <= 32 else 0.85
+    rain_impact = 1.1 if 800 <= rainfall <= 1500 else 0.9
+    return round(base * ph_impact * weather_impact * rain_impact, 2)
 
 # --- SIDEBAR ---
 with st.sidebar:
-    st.image("https://cdn-icons-png.flaticon.com/512/2942/2942257.png", width=100)
-    st.title("Farm Dashboard")
+    st.title("🚜 Farm Manager")
+    district = st.selectbox("Select District", ['Pune', 'Nashik', 'Nagpur', 'Satara', 'Aurangabad', 'Jalgaon', 'Kolhapur'])
+    area = st.number_input("Farm Area (Hectares)", 0.5, 100.0, 2.0)
     
-    district = st.selectbox("📍 District (Maharashtra)", ['Pune', 'Nashik', 'Nagpur', 'Satara', 'Aurangabad'])
-    area = st.number_input("🏞️ Farm Area (Hectares)", 0.5, 500.0, 1.0)
+    st.divider()
+    st.subheader("🧪 Soil Conditions")
+    soil_ph = st.slider("Soil pH Level", 4.0, 10.0, 6.8)
+    nitrogen = st.slider("Nitrogen Level (kg/ha)", 0, 500, 150)
     
-    st.markdown("### 🧪 Soil Analysis")
-    ph = st.slider("Soil pH", 4.0, 10.0, 6.5)
-    n = st.number_input("Nitrogen (kg/ha)", 0, 500, 150)
-    p = st.number_input("Phosphorus (kg/ha)", 0, 200, 50)
-    k = st.number_input("Potassium (kg/ha)", 0, 400, 100)
+    st.subheader("🌤️ Weather Forecast")
+    rainfall = st.slider("Expected Annual Rain (mm)", 200, 3000, 1000)
+    temperature = st.slider("Avg Temperature (°C)", 10, 45, 27)
     
-    st.markdown("### ☁️ Climate Forecast")
-    rainfall = st.slider("Expected Rainfall (mm)", 200, 3000, 1100)
-    temp = st.slider("Avg Temperature (°C)", 10, 45, 28)
-    
-    run_btn = st.button("Analyze & Optimize", use_container_width=True)
+    run_analysis = st.button("Generate Optimization Plan", use_container_width=True)
 
-# --- MAIN CONTENT ---
-if run_btn:
-    results = []
+# --- MAIN PAGE ---
+st.title("🌾 Maharashtra Crop Cycle Planner")
+st.markdown(f"**Analysis for:** {district} District | **Land Size:** {area} Hectares")
+
+if run_analysis:
+    seasonal_recommendations = []
+    
     for season, crops in crop_seasons.items():
-        season_results = []
+        potential_crops = []
         for crop in crops:
-            y = predict_crop_yield(crop, ph, n, p, k, rainfall, temp)
-            revenue = y * 10 * crop_info[crop]['price'] * area # Converting metric tons to quintals
-            cost = crop_info[crop]['cost'] * area
-            profit = revenue - cost
-            season_results.append({'Crop': crop, 'Yield': y, 'Profit': profit, 'Season': season})
+            predicted_yield = calculate_yield(crop, soil_ph, rainfall, temperature)
+            total_yield_tonnes = predicted_yield * area
+            # Revenue = Total Tonnes * 10 (to get quintals) * Price per quintal
+            gross_revenue = total_yield_tonnes * 10 * crop_info[crop]['price']
+            total_cost = crop_info[crop]['cost'] * area
+            profit = gross_revenue - total_cost
+            
+            potential_crops.append({
+                'Season': season,
+                'Crop': crop,
+                'Yield_Per_Ha': predicted_yield,
+                'Total_Yield': total_yield_tonnes,
+                'Profit': profit
+            })
         
-        # Pick the best for each season
-        best = max(season_results, key=lambda x: x['Profit'])
-        results.append(best)
+        # Select best crop for the season
+        best_crop = max(potential_crops, key=lambda x: x['Profit'])
+        seasonal_recommendations.append(best_crop)
 
-    df_results = pd.DataFrame(results)
-
-    # Metrics Row
-    st.title(f"🌾 Strategy for {district} District")
+    # Summary Metrics
+    df_results = pd.DataFrame(seasonal_recommendations)
     m1, m2, m3 = st.columns(3)
-    m1.metric("Annual Profit Est.", f"₹{df_results['Profit'].sum():,.0f}")
-    m2.metric("Peak Season", df_results.loc[df_results['Profit'].idxmax()]['Season'])
-    m3.metric("Avg. Yield/Ha", f"{df_results['Yield'].mean():.2f} T")
-
-    # Visualizations
-    st.markdown("---")
-    c1, c2 = st.columns([2, 1])
+    total_annual_profit = df_results['Profit'].sum()
     
-    with c1:
-        st.subheader("Seasonal Profitability Comparison")
-        fig = px.bar(df_results, x='Season', y='Profit', color='Crop', 
-                     text_auto='.2s', color_discrete_sequence=px.colors.qualitative.Pastel)
-        st.plotly_chart(fig, use_container_width=True)
+    m1.metric("Total Annual Profit", f"₹{total_annual_profit:,.0f}")
+    m2.metric("Best Season", df_results.loc[df_results['Profit'].idxmax()]['Season'].split(' ')[0])
+    m3.metric("Projected Yield (Annual)", f"{df_results['Total_Yield'].sum():.1f} Tons")
 
-    with c2:
-        st.subheader("Nutrient Sufficiency")
-        # Visualizing NPK vs Required for the best Kharif crop
-        best_kharif = df_results.iloc[0]['Crop']
-        req_npk = crop_info[best_kharif]['npk']
-        npk_df = pd.DataFrame({
-            'Nutrient': ['N', 'P', 'K'],
-            'Actual': [n, p, k],
-            'Required': req_npk
-        })
-        fig_npk = px.line_polar(npk_df, r='Actual', theta='Nutrient', line_close=True)
-        st.plotly_chart(fig_npk, use_container_width=True)
+    # Chart Section
+    st.subheader("📈 Seasonal Profit Analysis")
+    # Using Streamlit Native Bar Chart (No Plotly Required)
+    chart_df = df_results.set_index('Season')[['Profit']]
+    st.bar_chart(chart_df, color="#2e7d32")
 
     # Detailed Cards
-    st.subheader("Recommended Action Plan")
-    for _, row in df_results.iterrows():
-        with st.container():
-            st.markdown(f"""
-            <div class="recommendation-card">
-                <div style="display: flex; justify-content: space-between;">
-                    <span style="font-size: 1.2rem; font-weight: bold;">{row['Season']}</span>
-                    <span style="color: #2e7d32; font-weight: bold;">Rank #1 Recommendation</span>
+    st.subheader("📋 Recommended Crop Rotation")
+    for index, row in df_results.iterrows():
+        st.markdown(f"""
+        <div class="recommendation-card">
+            <span class="season-badge">{row['Season']}</span>
+            <h2 style="margin-top:10px;">{row['Crop']}</h2>
+            <div style="display: flex; gap: 40px; margin-top: 15px;">
+                <div>
+                    <p class="metric-label">Yield per Hectare</p>
+                    <p class="metric-value">{row['Yield_Per_Ha']} Tons</p>
                 </div>
-                <h2 style="margin: 10px 0;">{row['Crop']}</h2>
-                <p>Estimated Yield: <b>{row['Yield']} Tons/Ha</b> | Potential Profit: <b>₹{row['Profit']:,.2f}</b></p>
+                <div>
+                    <p class="metric-label">Total Harvest</p>
+                    <p class="metric-value">{row['Total_Yield']:.2f} Tons</p>
+                </div>
+                <div>
+                    <p class="metric-label">Projected Profit</p>
+                    <p class="metric-value">₹{row['Profit']:,.0f}</p>
+                </div>
             </div>
-            """, unsafe_allow_html=True)
-    
-    # Fertilizer Insight
-    st.info(f"💡 **Tip:** Your soil Nitrogen is {'low' if n < 100 else 'optimal'}. Consider adding urea if planting {df_results.iloc[0]['Crop']}.")
+        </div>
+        """, unsafe_allow_html=True)
+
+    # Expert Insight
+    st.info(f"💡 **Expert Insight:** For {district}, rotating **{df_results.iloc[0]['Crop']}** with **{df_results.iloc[1]['Crop']}** is ideal for maintaining soil Nitrogen levels.")
 
 else:
-    st.markdown("""
-    ### Welcome to the Crop Cycle Planner!
-    Please enter your soil test results and farm area in the sidebar to generate:
-    * **Optimal crop rotations** for 3 seasons.
-    * **Profitability forecasts** based on current market prices.
-    * **Nutrient gap analysis** for your specific soil profile.
-    """)
-    st.image("https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?auto=format&fit=crop&q=80&w=1000", use_container_width=True)
+    st.info("👈 Fill in your farm details in the sidebar and click 'Generate Optimization Plan' to view your results.")
+    # Placeholder Image for visual appeal
+    st.image("https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=1200", caption="Smart Farming for a better yield")
